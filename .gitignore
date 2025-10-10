@@ -1,0 +1,48 @@
+# OS固有ファイル
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE設定（個人設定は除外、共通設定は含む）
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# ログファイル
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 環境変数ファイル
+.env
+.env.local
+.env.*.local
+
+# 依存関係
+node_modules/
+package-lock.json
+yarn.lock
+
+# ビルド成果物
+dist/
+build/
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# テンポラリファイル
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
