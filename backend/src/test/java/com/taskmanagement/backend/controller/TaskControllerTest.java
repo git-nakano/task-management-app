@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,12 +26,25 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * TaskControllerのテスト（Phase 2-5版）
+ * TaskControllerのテスト（Phase 2-6版）
  * 
  * Phase 2-5での更新：
  * - @AutoConfigureMockMvc(addFilters = false)を追加しました
  * - これにより、テスト時にSpring Securityのフィルタが無効化されます
  * - 認証なしでAPIにアクセスできるため、テストが簡潔になります
+ * 
+ * Phase 2-6での更新：
+ * - @MockBeanを@MockitoBeanに変更しました
+ * - Spring Boot 3.4以降では、@MockBeanが非推奨になり、@MockitoBeanが推奨されます
+ * 
+ * @MockBeanと@MockitoBeanの違い：
+ * - @MockBean（古い、非推奨）：org.springframework.boot.test.mock.mockito.MockBean
+ * - @MockitoBean（新しい、推奨）：org.springframework.test.context.bean.override.mockito.MockitoBean
+ * 
+ * なぜ変更されたのか：
+ * - Spring Boot 3.4で、Bean Override機能が導入されました
+ * - より柔軟で一貫性のあるテストが可能になります
+ * - @MockitoBeanは、Spring TestContextフレームワークの一部となり、より統合されています
  * 
  * なぜaddFilters = falseが必要か：
  * - Phase 2-5でSpring Securityを有効化しました
@@ -41,7 +54,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * 実務でのポイント：
  * - テスト時にSpring Securityのフィルタを無効化することは、一般的な手法です
  * - Controller層のテストでは、ビジネスロジックに焦点を当てるため、認証はスキップします
- * - 認証のテストは、別途統合テストで行います（Phase 2-6で実装予定）
+ * - 認証のテストは、別途統合テストで行います（Phase 2-6で実装）
  */
 @WebMvcTest(TaskController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -53,7 +66,7 @@ class TaskControllerTest {
         @Autowired
         private ObjectMapper objectMapper;
 
-        @MockBean
+        @MockitoBean
         private TaskService taskService;
 
         /**

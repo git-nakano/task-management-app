@@ -42,9 +42,28 @@ class UserServiceTest {
 
     /**
      * 各テストメソッド実行前に呼ばれる初期化メソッド
+     * 
+     * Phase 2-6での更新：
+     * - userRepository.deleteAll()を追加しました
+     * - これにより、統合テストで作成されたデータをクリアします
+     * 
+     * なぜこの修正が必要なのか：
+     * - 統合テスト（AuthControllerIntegrationTest、E2ETestScenario）と
+     * 単体テスト（UserServiceTest）が同じH2データベースインスタンスを共有しています
+     * - 統合テストで作成されたユーザーが残っている状態で、UserServiceTestが実行されると、
+     * setUp()メソッドで同じメールアドレスのユーザーを作成しようとしてエラーになります
+     * - deleteAll()を追加することで、各テスト前にデータベースをクリーンな状態にします
+     * 
+     * 実務でのポイント：
+     * - @Transactionalがあるので、各テスト後にロールバックされますが、
+     * テスト実行順序によっては、統合テストのデータが残る可能性があります
+     * - テスト間でデータが影響し合わないように、setUp()でデータベースをクリアすることが推奨されます
      */
     @BeforeEach
     void setUp() {
+        // データベースをクリア（統合テストで作成されたデータを削除）
+        userRepository.deleteAll();
+
         // テスト用のユーザーを作成
         UserResponseDto createdUser = userService.createUser(
                 "test@example.com",

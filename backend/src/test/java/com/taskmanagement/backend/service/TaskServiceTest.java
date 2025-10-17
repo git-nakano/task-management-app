@@ -5,6 +5,8 @@ import com.taskmanagement.backend.dto.TaskResponseDto;
 import com.taskmanagement.backend.dto.UserResponseDto;
 import com.taskmanagement.backend.model.TaskPriority;
 import com.taskmanagement.backend.model.TaskStatus;
+import com.taskmanagement.backend.repository.TaskRepository;
+import com.taskmanagement.backend.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,10 @@ import static org.junit.jupiter.api.Assertions.*;
  *                 - フィルタリング機能の動作確認
  *                 - 検索機能の動作確認
  *                 - 権限チェックの動作確認
+ * 
+ *                 Phase 2-6での更新：
+ *                 - TaskRepositoryとUserRepositoryをインジェクトしました
+ *                 - setUp()メソッドでdeleteAll()を追加しました
  */
 @SpringBootTest
 @Transactional
@@ -42,14 +48,42 @@ class TaskServiceTest {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private TaskRepository taskRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
     private Long testUserId;
     private Long testTaskId;
 
     /**
      * 各テストメソッド実行前に呼ばれる初期化メソッド
+     * 
+     * Phase 2-6での更新：
+     * - taskRepository.deleteAll()とuserRepository.deleteAll()を追加しました
+     * - これにより、統合テストで作成されたデータをクリアします
+     * 
+     * なぜこの修正が必要なのか：
+     * - 統合テスト（AuthControllerIntegrationTest、E2ETestScenario）と
+     * 単体テスト（TaskServiceTest）が同じH2データベースインスタンスを共有しています
+     * - 統合テストで作成されたデータが残っている状態で、TaskServiceTestが実行されると、
+     * setUp()メソッドで同じメールアドレスのユーザーを作成しようとしてエラーになります
+     * - deleteAll()を追加することで、各テスト前にデータベースをクリーンな状態にします
+     * 
+     * 実務でのポイント：
+     * - @Transactionalがあるので、各テスト後にロールバックされますが、
+     * テスト実行順序によっては、統合テストのデータが残る可能性があります
+     * - テスト間でデータが影響し合わないように、setUp()でデータベースをクリアすることが推奨されます
+     * - タスクは外部キー制約でユーザーに依存しているため、タスクを先に削除してからユーザーを削除します
      */
     @BeforeEach
     void setUp() {
+        // データベースをクリア（統合テストで作成されたデータを削除）
+        // 外部キー制約のため、タスクを先に削除
+        taskRepository.deleteAll();
+        userRepository.deleteAll();
+
         // テスト用のユーザーを作成
         UserResponseDto user = userService.createUser(
                 "test@example.com",
